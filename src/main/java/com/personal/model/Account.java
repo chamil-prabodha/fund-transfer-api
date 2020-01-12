@@ -8,8 +8,9 @@ public class Account {
     private String accountNumber;
     private BigDecimal balance;
 
-    public Account(String accountNumber) {
+    public Account(String accountNumber, BigDecimal balance) {
         this.accountNumber = accountNumber;
+        this.balance = balance;
     }
 
     private synchronized void withdraw(BigDecimal amount) throws InsufficientBalanceException {
