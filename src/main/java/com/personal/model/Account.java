@@ -13,15 +13,19 @@ public class Account {
         this.balance = balance;
     }
 
-    private synchronized void withdraw(BigDecimal amount) throws InsufficientBalanceException {
-        if (balance.subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
-            throw new InsufficientBalanceException("insufficient balance in account to transfer from account: " + accountNumber);
+    public void withdraw(BigDecimal amount) throws InsufficientBalanceException {
+        synchronized (this) {
+            if (balance.subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
+                throw new InsufficientBalanceException("insufficient balance in account to transfer from account: " + accountNumber);
+            }
+            balance = balance.subtract(amount);
         }
-        balance = balance.subtract(amount);
     }
 
-    private synchronized void deposit(BigDecimal amount) {
-        balance = balance.add(amount);
+    public void deposit(BigDecimal amount) {
+        synchronized (this) {
+            balance = balance.add(amount);
+        }
     }
 
     public String getAccountNumber() {
@@ -29,6 +33,8 @@ public class Account {
     }
 
     public BigDecimal getBalance() {
-        return balance;
+        synchronized (this) {
+            return balance;
+        }
     }
 }
