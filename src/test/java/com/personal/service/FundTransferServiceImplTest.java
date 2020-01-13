@@ -22,8 +22,6 @@ import static org.junit.Assert.*;
 @RunWith(MockitoJUnitRunner.class)
 public class FundTransferServiceImplTest {
     private static final Logger LOGGER = LogManager.getLogger(FundTransferServiceImplTest.class);
-    @InjectMocks
-    private FundTransferServiceImpl fundTransferService;
 
     @Before
     public void setUp() throws Exception {
@@ -35,7 +33,7 @@ public class FundTransferServiceImplTest {
         Account toAccount = new Account("xyz", new BigDecimal(0));
 
         try {
-            fundTransferService.transfer(fromAccount, toAccount, BigDecimal.valueOf(10.00));
+            FundTransferServiceImpl.getInstance().transfer(fromAccount, toAccount, BigDecimal.valueOf(10.00));
             assertEquals(BigDecimal.valueOf(90.00), fromAccount.getBalance());
             assertEquals(BigDecimal.valueOf(10.00), toAccount.getBalance());
         } catch (Exception e) {
@@ -48,7 +46,7 @@ public class FundTransferServiceImplTest {
         Account fromAccount = new Account("abc", BigDecimal.valueOf(10.00));
         Account toAccount = new Account("xyz", new BigDecimal(0));
         try {
-            fundTransferService.transfer(fromAccount, toAccount, BigDecimal.valueOf(100.00));
+            FundTransferServiceImpl.getInstance().transfer(fromAccount, toAccount, BigDecimal.valueOf(100.00));
         } catch (InsufficientBalanceException e) {
             assertEquals(BigDecimal.valueOf(10.00), fromAccount.getBalance());
             assertEquals(BigDecimal.valueOf(0), toAccount.getBalance());
