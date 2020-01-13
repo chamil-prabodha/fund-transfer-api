@@ -55,4 +55,8 @@ public class AccountRepository implements Repository<String, Account> {
         // not implemented
     }
 
+    public int getSize() {
+        return mapDataSource.getSource().size();
+    }
+
 }
