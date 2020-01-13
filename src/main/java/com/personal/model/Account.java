@@ -15,10 +15,11 @@ public class Account {
 
     public void withdraw(BigDecimal amount) throws InsufficientBalanceException {
         synchronized (this) {
-            if (balance.subtract(amount).compareTo(BigDecimal.ZERO) < 0) {
-                throw new InsufficientBalanceException("insufficient balance in account to transfer from account: " + accountNumber);
+            BigDecimal resultingAmount = balance.subtract(amount);
+            if (resultingAmount.compareTo(BigDecimal.ZERO) < 0) {
+                throw new InsufficientBalanceException("insufficient balance in account to transfer from account: " + accountNumber, null);
             }
-            balance = balance.subtract(amount);
+            balance = resultingAmount;
         }
     }
 

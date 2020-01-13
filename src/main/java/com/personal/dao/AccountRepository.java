@@ -1,6 +1,7 @@
 package com.personal.dao;
 
 import com.personal.exception.AccountCreationException;
+import com.personal.exception.PersistenceException;
 import com.personal.model.Account;
 
 import java.util.ArrayList;
@@ -36,7 +37,7 @@ public class AccountRepository implements Repository<String, Account> {
     }
 
     @Override
-    public Account save(Account obj) throws AccountCreationException {
+    public Account save(Account obj) throws PersistenceException {
         if (obj == null || obj.getAccountNumber() == null) {
             throw new AccountCreationException("account or account number cannot be null");
         }

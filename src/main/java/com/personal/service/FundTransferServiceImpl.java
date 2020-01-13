@@ -10,23 +10,23 @@ import java.math.BigDecimal;
 
 public class FundTransferServiceImpl implements FundTransferService {
     private static final Logger LOGGER = LogManager.getLogger(FundTransferServiceImpl.class);
+    private static FundTransferService instance;
 
-    private Repository accountRepository;
+    private FundTransferServiceImpl() {
+    }
 
-    public FundTransferServiceImpl(Repository repository) {
-        this.accountRepository = repository;
+    public static FundTransferService getInstance() {
+        if (instance == null) {
+            instance = new FundTransferServiceImpl();
+        }
+        return instance;
     }
 
     @Override
-    public boolean transfer(Account from, Account to, BigDecimal amount) {
-        try {
-            from.withdraw(amount);
-            to.deposit(amount);
-        } catch (InsufficientBalanceException e) {
-            LOGGER.error("insufficient funds to transfer from account: {}", from.getAccountNumber());
-            return false;
-        }
-        LOGGER.info("transfer of: {} from account: {} to account: {}", amount, from.getAccountNumber(), to.getAccountNumber());
-        return true;
+    public void transfer(Account from, Account to, BigDecimal amount) throws InsufficientBalanceException {
+        LOGGER.info("starting transaction - transfer of: {} from account: {} to account: {}", amount, from.getAccountNumber(), to.getAccountNumber());
+        from.withdraw(amount);
+        to.deposit(amount);
+        LOGGER.info("ending transaction - transfer of: {} from account: {} to account: {}", amount, from.getAccountNumber(), to.getAccountNumber());
     }
 }
