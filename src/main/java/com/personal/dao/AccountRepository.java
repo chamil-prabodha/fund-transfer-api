@@ -18,14 +18,22 @@ public class AccountRepository implements Repository<String, Account> {
     private MapDataSource<String, Account> mapDataSource;
     private final Validator<Account> accountValidator;
 
-    private AccountRepository() {
-        mapDataSource = new MapDataSource<>();
+    private AccountRepository(MapDataSource<String, Account> mapDataSource) {
+        this.mapDataSource = mapDataSource;
         accountValidator = new AccountValidator();
     }
 
-    public static AccountRepository getInstance() {
+    public static void init(MapDataSource<String, Account> mapDataSource) throws PersistenceException {
         if (instance == null) {
-            instance = new AccountRepository();
+            instance = new AccountRepository(mapDataSource);
+        } else {
+            throw new PersistenceException("cannot call init on already initialized repository", null);
+        }
+    }
+
+    public static AccountRepository getInstance() throws PersistenceException {
+        if (instance == null) {
+            throw new PersistenceException("cannot call getInstance on an uninitialized repository. call init first", null);
         }
         return instance;
     }
@@ -38,7 +46,7 @@ public class AccountRepository implements Repository<String, Account> {
     @Override
     public List<Account> findAll(String id) {
         List<Account> accounts = new ArrayList<>();
-        if (mapDataSource.getSource().get(id) != null) {
+        if (findOne(id) != null) {
             accounts.add(mapDataSource.getSource().get(id));
         }
         return accounts;
@@ -55,7 +63,7 @@ public class AccountRepository implements Repository<String, Account> {
         }
 
         if (findOne(obj.getAccountNumber()) != null) {
-            throw new AccountCreationException("an account with a given account number already exists");
+            throw new AccountCreationException("an account with the given account number already exists");
         }
 
         mapDataSource.getSource().put(obj.getAccountNumber(), obj);

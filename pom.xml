@@ -83,11 +83,45 @@
         <plugin>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>2.22.1</version>
+          <executions>
+            <execution>
+              <id>default-test</id>
+              <phase>none</phase>
+            </execution>
+            <execution>
+              <id>unit-tests</id>
+              <phase>test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <skipTests>false</skipTests>
+                <includes>
+                  <include>**/*Test.java</include>
+                </includes>
+                <excludes>**/*IntegrationTest.*</excludes>
+              </configuration>
+            </execution>
+            <execution>
+              <id>integration-tests</id>
+              <phase>integration-test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <skipTests>false</skipTests>
+                <includes>
+                  <include>**/*IntegrationTest.*</include>
+                  <include>**/*Tests.*</include>
+                </includes>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
-<!--        <plugin>-->
-<!--          <artifactId>maven-jar-plugin</artifactId>-->
-<!--          <version>3.0.2</version>-->
-<!--        </plugin>-->
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
         <plugin>
           <artifactId>maven-install-plugin</artifactId>
           <version>2.5.2</version>

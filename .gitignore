@@ -19,6 +19,9 @@
 *.tar.gz
 *.rar
 
+# Package folder
+target/
+
 # IntelliJ files
 .idea/
 *.iml

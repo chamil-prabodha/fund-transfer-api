@@ -36,7 +36,29 @@ public class FundTransferServiceImplTest {
     }
 
     @Test(expected = FundTransferException.class)
-    public void transferThrowsInsufficientBalanceExceptionTest() throws FundTransferException{
+    public void transferWhenToAccountIsNullTest() throws FundTransferException {
+        Account fromAccount = new Account("abc", BigDecimal.valueOf(10.00));
+        try {
+            FundTransferServiceImpl.getInstance().transfer(fromAccount, null, BigDecimal.valueOf(100.00));
+        } catch (FundTransferException e) {
+            assertEquals(BigDecimal.valueOf(10.00), fromAccount.getBalance());
+            throw e;
+        }
+    }
+
+    @Test(expected = FundTransferException.class)
+    public void transferWhenFromAccountIsNullTest() throws FundTransferException {
+        Account toAccount = new Account("xyz", new BigDecimal(0));
+        try {
+            FundTransferServiceImpl.getInstance().transfer(null, null, BigDecimal.valueOf(100.00));
+        } catch (FundTransferException e) {
+            assertEquals(BigDecimal.valueOf(0), toAccount.getBalance());
+            throw e;
+        }
+    }
+
+    @Test(expected = FundTransferException.class)
+    public void transferWhenInsufficientBalanveTest() throws FundTransferException{
         Account fromAccount = new Account("abc", BigDecimal.valueOf(10.00));
         Account toAccount = new Account("xyz", new BigDecimal(0));
         try {
