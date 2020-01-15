@@ -1,21 +1,15 @@
 package com.personal.service;
 
-import com.personal.dao.AccountRepository;
-import com.personal.exception.InsufficientBalanceException;
+import com.personal.exception.FundTransferException;
 import com.personal.model.Account;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 import static org.junit.Assert.*;
 
@@ -41,13 +35,13 @@ public class FundTransferServiceImplTest {
         }
     }
 
-    @Test(expected = InsufficientBalanceException.class)
-    public void transferThrowsInsufficientBalanceExceptionTest() throws InsufficientBalanceException{
+    @Test(expected = FundTransferException.class)
+    public void transferThrowsInsufficientBalanceExceptionTest() throws FundTransferException{
         Account fromAccount = new Account("abc", BigDecimal.valueOf(10.00));
         Account toAccount = new Account("xyz", new BigDecimal(0));
         try {
             FundTransferServiceImpl.getInstance().transfer(fromAccount, toAccount, BigDecimal.valueOf(100.00));
-        } catch (InsufficientBalanceException e) {
+        } catch (FundTransferException e) {
             assertEquals(BigDecimal.valueOf(10.00), fromAccount.getBalance());
             assertEquals(BigDecimal.valueOf(0), toAccount.getBalance());
             throw e;

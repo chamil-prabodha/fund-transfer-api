@@ -1,6 +1,7 @@
 package com.personal.validator;
 
 import com.personal.exception.ObjectValidationException;
+import com.personal.model.response.ErrorCode;
 
 public class NonEmptyStringValidator implements Validator<String> {
     private Validator<String> nextValidator;
@@ -14,7 +15,7 @@ public class NonEmptyStringValidator implements Validator<String> {
     public void validate(String data) throws ObjectValidationException {
         checkIfNull(data);
         if (data.isEmpty()) {
-            throw new ObjectValidationException("string is null or empty");
+            throw new ObjectValidationException(ErrorCode.INVALID_STRING, "string is null or empty");
         } else if (nextValidator != null) {
             nextValidator.validate(data);
         }

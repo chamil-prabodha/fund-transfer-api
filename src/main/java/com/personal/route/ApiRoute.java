@@ -3,7 +3,7 @@ package com.personal.route;
 import com.personal.dao.AccountRepository;
 import com.personal.exception.PersistenceException;
 import com.personal.exception.RequestHandlerException;
-import com.personal.model.response.ResponseCode;
+import com.personal.model.response.ErrorCode;
 import com.personal.model.response.TransferResponse;
 import com.personal.route.handler.FundTransferRequestHandler;
 import com.personal.route.handler.GetBalanceRequestHandler;
@@ -56,11 +56,11 @@ public class ApiRoute {
             get("/balance/:accNum", getBalanceRequestHandler::handle, JsonTransformer.getInstance());
 
             exception(RequestHandlerException.class, (ex, req, res) -> {
-                ResponseCode responseCode = ex.getResponseCode();
+                ErrorCode errorCode = ex.getErrorCode();
                 res.type(CONTENT_TYPE);
                 try {
                     res.status(400);
-                    res.body(JsonTransformer.getInstance().render(new TransferResponse(responseCode.getCode(), responseCode.getMessage())));
+                    res.body(JsonTransformer.getInstance().render(new TransferResponse(errorCode.getCode(), errorCode.getMessage())));
                 } catch (Exception e) {
                     LOGGER.error("unexpected exception occurred", e);
                     res.status(500);

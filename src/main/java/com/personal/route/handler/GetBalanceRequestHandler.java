@@ -3,7 +3,7 @@ package com.personal.route.handler;
 import com.personal.exception.ObjectValidationException;
 import com.personal.exception.RequestHandlerException;
 import com.personal.model.Account;
-import com.personal.model.response.ResponseCode;
+import com.personal.model.response.ErrorCode;
 import com.personal.model.response.TransferResponse;
 import com.personal.service.AccountService;
 import com.personal.validator.AccountValidator;
@@ -31,7 +31,7 @@ public class GetBalanceRequestHandler implements RequestHandler<TransferResponse
             return new TransferResponse(0, account.getBalance().toPlainString());
         } catch (ObjectValidationException e) {
             LOGGER.error("unable to locate account: {}", accountNumber);
-            throw new RequestHandlerException(ResponseCode.INVALID_ACC_NUM, "unable to locate account");
+            throw new RequestHandlerException(ErrorCode.ACC_NOT_FOUND, "unable to locate account");
         }
 
     }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.personal.exception.ObjectValidationException;
 import com.personal.model.Validatable;
+import com.personal.model.response.ErrorCode;
 import com.personal.validator.DecimalAmountValidator;
 import com.personal.validator.NonEmptyStringValidator;
 import com.personal.validator.PositiveAmountValidator;
@@ -67,7 +68,11 @@ public class TransferRequest implements Validatable {
     @Override
     public void validate() throws ObjectValidationException {
         amountValidator.validate(amount);
-        nonEmptyAccountValidator.validate(fromAccount);
-        nonEmptyAccountValidator.validate(toAccount);
+        try {
+            nonEmptyAccountValidator.validate(fromAccount);
+            nonEmptyAccountValidator.validate(toAccount);
+        } catch (ObjectValidationException e) {
+            throw new ObjectValidationException(ErrorCode.INVALID_ACC_NUM, "invalid account number");
+        }
     }
 }

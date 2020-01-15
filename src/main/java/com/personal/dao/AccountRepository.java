@@ -49,7 +49,8 @@ public class AccountRepository implements Repository<String, Account> {
         try {
             accountValidator.validate(obj);
         } catch (ObjectValidationException e) {
-            LOGGER.error("unable to validate account", e);
+            String error = e.getErrorCode() != null ? e.getErrorCode().getMessage() : "";
+            LOGGER.error("unable to validate account. error: {}", error, e);
             throw new AccountCreationException("unable to validate account");
         }
 
