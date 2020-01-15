@@ -1,18 +1,26 @@
 package com.personal.dao;
 
 import com.personal.exception.AccountCreationException;
+import com.personal.exception.ObjectValidationException;
 import com.personal.exception.PersistenceException;
 import com.personal.model.Account;
+import com.personal.validator.AccountValidator;
+import com.personal.validator.Validator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AccountRepository implements Repository<String, Account> {
+    private static final Logger LOGGER = LogManager.getLogger(AccountRepository.class);
     private static AccountRepository instance = null;
     private MapDataSource<String, Account> mapDataSource;
+    private final Validator<Account> accountValidator;
 
     private AccountRepository() {
         mapDataSource = new MapDataSource<>();
+        accountValidator = new AccountValidator();
     }
 
     public static AccountRepository getInstance() {
@@ -38,8 +46,11 @@ public class AccountRepository implements Repository<String, Account> {
 
     @Override
     public Account save(Account obj) throws PersistenceException {
-        if (obj == null || obj.getAccountNumber() == null) {
-            throw new AccountCreationException("account or account number cannot be null");
+        try {
+            accountValidator.validate(obj);
+        } catch (ObjectValidationException e) {
+            LOGGER.error("unable to validate account", e);
+            throw new AccountCreationException("unable to validate account");
         }
 
         if (findOne(obj.getAccountNumber()) != null) {

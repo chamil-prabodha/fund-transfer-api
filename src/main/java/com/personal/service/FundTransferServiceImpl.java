@@ -1,6 +1,5 @@
 package com.personal.service;
 
-import com.personal.dao.Repository;
 import com.personal.exception.InsufficientBalanceException;
 import com.personal.model.Account;
 import org.apache.logging.log4j.LogManager;
