@@ -6,7 +6,7 @@
 
   <groupId>com.personal</groupId>
   <artifactId>fund-transfer-api</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 
   <name>backendtest</name>
   <url>https://github.com/chamil-prabodha/fund-transfer-api</url>
