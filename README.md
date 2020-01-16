@@ -1,5 +1,5 @@
 # fund-transfer-api
-This is a RESTful api develooped using Spark Java microframework to simulate fund transfer between accounts.
+This is a RESTful api develooped using Spark Java microframework to simulate fund transfer between accounts. The API runs on port 8000 by default and has been developed to run on JRE 1.8 and above
 
 ## Key Assumptions
 * Transfer amount has to be in exactly two decimal places.
