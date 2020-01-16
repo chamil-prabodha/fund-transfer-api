@@ -9,7 +9,8 @@ public enum ErrorCode {
     NEGATIVE_AMOUNT(6, "amount cannot be negative"),
     INVALID_DECIMAL_PLACES(7, "should contain exactly two decimal palces"),
     INVALID_STRING(8, "invalid string"),
-    UNEXPECTED_ERROR(9, "unexpected error");
+    UNEXPECTED_ERROR(9, "unexpected error"),
+    NULL_OBJECT(10, "null object detected");
 
     private int code;
     private String message;

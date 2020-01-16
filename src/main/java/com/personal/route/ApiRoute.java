@@ -49,24 +49,36 @@ public class ApiRoute {
     }
 
     private void setupRoutes() {
+        exception(RequestHandlerException.class, (ex, req, res) -> {
+            LOGGER.error("an exception occurred while handling request: {} {}", req.requestMethod(), req.pathInfo(), ex);
+            ErrorCode errorCode = ex.getErrorCode();
+            res.type(CONTENT_TYPE);
+            try {
+                res.status(400);
+                res.body(JsonTransformer.getInstance().render(new TransferResponse(errorCode.getCode(), errorCode.getMessage())));
+            } catch (Exception e) {
+                LOGGER.error("unexpected exception occurred", e);
+                res.status(500);
+                res.body("Internal Server Error");
+            }
+        });
+
+        exception(Exception.class, (ex, req, res) -> {
+            LOGGER.error("an unknown error occurred while processing request: {} {}", req.requestMethod(), req.pathInfo(), ex);
+            res.type(CONTENT_TYPE);
+            res.status(500);
+            try {
+                res.body(JsonTransformer.getInstance().render(new TransferResponse(ErrorCode.UNEXPECTED_ERROR.getCode(), ErrorCode.UNEXPECTED_ERROR.getMessage())));
+            } catch (Exception e) {
+                LOGGER.error("unexpected exception occurred", e);
+                res.body("Internal Server Error");
+            }
+        });
+
         path("/api", () -> {
             get("/healthcheck", healthCheckRequestHandler::handle);
-
             post("/transfer", fundTransferRequestHandler::handle, JsonTransformer.getInstance());
             get("/balance/:accNum", getBalanceRequestHandler::handle, JsonTransformer.getInstance());
-
-            exception(RequestHandlerException.class, (ex, req, res) -> {
-                ErrorCode errorCode = ex.getErrorCode();
-                res.type(CONTENT_TYPE);
-                try {
-                    res.status(400);
-                    res.body(JsonTransformer.getInstance().render(new TransferResponse(errorCode.getCode(), errorCode.getMessage())));
-                } catch (Exception e) {
-                    LOGGER.error("unexpected exception occurred", e);
-                    res.status(500);
-                    res.body("Internal Server Error");
-                }
-            });
         });
     }
 }

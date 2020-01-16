@@ -94,6 +94,17 @@ public class AccountRepositoryTest {
     }
 
     @Test(expected = AccountCreationException.class)
+    public void saveInvalidAccountNumberThrowsExceptionTest() throws PersistenceException {
+        Account account = new Account("", BigDecimal.valueOf(12.00).setScale(2, RoundingMode.UNNECESSARY));
+        try {
+            AccountRepository.getInstance().save(account);
+        } catch (AccountCreationException e) {
+            assertEquals("unable to validate account", e.getMessage());
+            throw e;
+        }
+    }
+
+    @Test(expected = AccountCreationException.class)
     public void saveExistingAccountThrowsExceptionTest() throws PersistenceException {
         try {
             Account account = new Account("123", BigDecimal.valueOf(10.00).setScale(2, RoundingMode.UNNECESSARY));

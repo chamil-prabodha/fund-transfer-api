@@ -39,8 +39,10 @@ public class FundTransferServiceImpl implements FundTransferService {
             to.deposit(amount);
             LOGGER.info("ending transaction - transfer of: {} from account: {} to account: {}", amount, from.getAccountNumber(), to.getAccountNumber());
         } catch (ObjectValidationException e) {
+            LOGGER.info("transaction failed due to validation error. rolled back");
             throw new FundTransferException(ErrorCode.ACC_NOT_FOUND, "null account object detected");
         } catch (InsufficientBalanceException e) {
+            LOGGER.info("transaction failed due to insufficient balance. rolled back");
             throw new FundTransferException(ErrorCode.INSUFFICIENT_BALANCE, "insufficient balance");
         }
     }

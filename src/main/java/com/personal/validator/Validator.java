@@ -9,7 +9,7 @@ public interface Validator<T> {
     void validate(T data) throws ObjectValidationException;
     default void checkIfNull(T data) throws ObjectValidationException {
         if (data == null) {
-            throw new ObjectValidationException(ErrorCode.UNEXPECTED_ERROR, "object should not be null");
+            throw new ObjectValidationException(ErrorCode.NULL_OBJECT, "object should not be null");
         }
     }
 }

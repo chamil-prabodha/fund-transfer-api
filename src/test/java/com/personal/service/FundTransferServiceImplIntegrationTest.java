@@ -8,6 +8,8 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.Assert.*;
 
@@ -16,7 +18,7 @@ public class FundTransferServiceImplIntegrationTest {
     private static final int THREAD_COUNT = 1000;
     private static final double ACCOUNT_BALANCE = 1000.00;
 
-    private final Map<Account, List<BigDecimal>> transactionLog = new Hashtable<>();
+    private final List<TransactionLogEntry> transactionLog = new ArrayList<>();
     private final Random random = new Random();
 
     private List<Account> accounts;
@@ -31,13 +33,27 @@ public class FundTransferServiceImplIntegrationTest {
         threads = new ArrayList<>();
 
         for (int i = 0; i < THREAD_COUNT; i++) {
-            Thread t = new Thread(this::runTest);
+            //select two random index from accounts list
+            List<Integer> list= IntStream.range(0, accounts.size()).boxed().collect(Collectors.toList());
+            Collections.shuffle(list);
+
+            double amount = random.nextInt((int) ACCOUNT_BALANCE) / 100.00;
+            Account fromAccount = accounts.get(list.get(0));
+            Account toAccount = accounts.get(list.get(1));
+
+            Thread t = new Thread(() -> {
+                runTest(fromAccount, toAccount, BigDecimal.valueOf(amount));
+            });
             threads.add(t);
         }
     }
 
     @Test
     public void transferUsingMultipleThreadsTest() {
+        Map<String, BigDecimal> balanceMap = new HashMap<>();
+        accounts.forEach(account -> balanceMap.put(account.getAccountNumber(), account.getBalance()));
+
+        // run multi-threaded test
         Long start = System.currentTimeMillis();
         threads.forEach(Thread::start);
         threads.forEach(t -> {
@@ -50,73 +66,62 @@ public class FundTransferServiceImplIntegrationTest {
         });
         Long end = System.currentTimeMillis();
 
-        transactionLog.forEach((account, list) -> {
-            LOGGER.debug("account: {} transactions", account.getAccountNumber());
-            final BigDecimal[] sum = {BigDecimal.ZERO};
-            list.forEach(trans -> {
-                LOGGER.debug(trans);
-                sum[0] = sum[0].add(trans);
-            });
-            BigDecimal expectedBalance = BigDecimal.valueOf(1000.0).add(sum[0]);
+        // run sequentially to verify
+        transactionLog.forEach((entry) -> {
+            LOGGER.debug("from account: {} to account: {} amount: {}", entry.fromAccount.getAccountNumber(), entry.toAccount, entry.amount);
+
+            BigDecimal fromAccountChange = balanceMap.get(entry.getFromAccount().getAccountNumber()).subtract(entry.getAmount());
+            balanceMap.put(entry.getFromAccount().getAccountNumber(), fromAccountChange);
+
+            BigDecimal toAccountChange = balanceMap.get(entry.getToAccount().getAccountNumber()).add(entry.getAmount());
+            balanceMap.put(entry.getToAccount().getAccountNumber(), toAccountChange);
+        });
+
+        // compare multi-threaded and sequential result;
+        accounts.forEach(account -> {
+            BigDecimal expectedBalance = balanceMap.get(account.getAccountNumber());
             LOGGER.info("account: {}, expected balance: {}, actual balance:{}", account.getAccountNumber(), expectedBalance, account.getBalance());
             assertEquals(expectedBalance, account.getBalance());
         });
         LOGGER.info("execution time: {} ms", end - start);
     }
 
-    private void runTest() {
-        int choiceOrdinal = random.nextInt(2);
-        int accountIndex = random.nextInt(3);
-        double amount = random.nextInt((int) ACCOUNT_BALANCE) / 100.00;
-
-        Choice choice = Choice.values()[choiceOrdinal];
+    private void runTest(Account fromAccount, Account toAccount, BigDecimal amount) {
         try {
-            Account account = accounts.get(accountIndex);
-            BigDecimal changeAmount = choice.getOperation().process(account, BigDecimal.valueOf(amount));
-            addTransactionLogEntry(account, changeAmount);
+            FundTransferServiceImpl.getInstance().transfer(fromAccount, toAccount, amount);
+            addTransactionLogEntry(fromAccount, toAccount, amount);
         } catch (Exception e) {
             LOGGER.error(e);
             fail("should not throw any exceptions");
         }
     }
 
-    private synchronized void addTransactionLogEntry(Account account, BigDecimal amount) {
-        List<BigDecimal> transactions = transactionLog.get(account);
-        if (transactions != null) {
-            transactions.add(amount);
-        } else {
-            transactions = new ArrayList<>();
-            transactions.add(amount);
-            transactionLog.put(account, transactions);
-        }
+    private synchronized void addTransactionLogEntry(Account fromAccount, Account toAccount, BigDecimal amount) {
+        transactionLog.add(new TransactionLogEntry(fromAccount, toAccount, amount));
     }
 
-    private enum Choice {
-        WITHDRAW(((account, amount) -> {
-            LOGGER.debug("withdrawing amount: {}", amount);
-            account.withdraw(amount);
-            return BigDecimal.ZERO.subtract(amount);
-        })),
-        DEPOSIT(((account, amount) -> {
-            LOGGER.debug("depositing amount: {}", amount);
-            account.deposit(amount);
-            return BigDecimal.ZERO.add(amount);
-        }));
+    private static class TransactionLogEntry {
+        private Account fromAccount;
+        private Account toAccount;
+        private BigDecimal amount;
 
-        private Operation operation;
-
-        Choice(Operation operation) {
-            this.operation = operation;
+        TransactionLogEntry (Account fromAccount, Account toAccount, BigDecimal amount) {
+            this.fromAccount = fromAccount;
+            this.toAccount = toAccount;
+            this.amount = amount;
         }
 
-        public Operation getOperation() {
-            return operation;
+        public Account getFromAccount() {
+            return fromAccount;
         }
-    }
 
-    @FunctionalInterface
-    private static interface Operation {
-        BigDecimal process(Account account, BigDecimal amount) throws Exception;
+        public Account getToAccount() {
+            return toAccount;
+        }
+
+        public BigDecimal getAmount() {
+            return amount;
+        }
     }
 
 }

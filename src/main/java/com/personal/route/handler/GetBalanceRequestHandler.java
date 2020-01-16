@@ -15,9 +15,11 @@ import spark.Response;
 public class GetBalanceRequestHandler implements RequestHandler<TransferResponse> {
     private static final Logger LOGGER = LogManager.getLogger(GetBalanceRequestHandler.class);
     private final AccountService accountService;
+    private final AccountValidator accountValidator;
 
     public GetBalanceRequestHandler(AccountService accountService) {
         this.accountService = accountService;
+        accountValidator = new AccountValidator();
     }
 
     @Override
@@ -25,7 +27,7 @@ public class GetBalanceRequestHandler implements RequestHandler<TransferResponse
         String accountNumber = req.params(":accNum");
         try {
             Account account = accountService.getAccount(accountNumber);
-            new AccountValidator().checkIfNull(account);
+            accountValidator.checkIfNull(account);
             res.type("application/json");
             res.status(200);
             return new TransferResponse(0, account.getBalance().toPlainString());
