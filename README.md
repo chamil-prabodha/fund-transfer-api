@@ -55,4 +55,5 @@ mvn clean package -DskipTests
 ```
 
 ## Binaries
-#### [v1.0.0](https://github.com/chamil-prabodha/fund-transfer-api/releases/tag/v1.0.0)
+* [v1.0.1](https://github.com/chamil-prabodha/fund-transfer-api/releases/tag/v1.0.1)
+* [v1.0.0](https://github.com/chamil-prabodha/fund-transfer-api/releases/tag/v1.0.0)
