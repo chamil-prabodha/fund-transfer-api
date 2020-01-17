@@ -6,7 +6,7 @@
 
   <groupId>com.personal</groupId>
   <artifactId>fund-transfer-api</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 
   <name>backendtest</name>
   <url>https://github.com/chamil-prabodha/fund-transfer-api</url>
@@ -15,6 +15,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
+    <skipTests>false</skipTests>
   </properties>
 
   <dependencies>
@@ -101,11 +102,13 @@
                 <goal>test</goal>
               </goals>
               <configuration>
-                <skipTests>false</skipTests>
+                <skipTests>${skipTests}</skipTests>
                 <includes>
                   <include>**/*Test.java</include>
                 </includes>
-                <excludes>**/*IntegrationTest.*</excludes>
+                <excludes>
+                  <exclude>**/*IntegrationTest.*</exclude>
+                </excludes>
               </configuration>
             </execution>
             <execution>
@@ -115,7 +118,7 @@
                 <goal>test</goal>
               </goals>
               <configuration>
-                <skipTests>false</skipTests>
+                <skipTests>${skipTests}</skipTests>
                 <includes>
                   <include>**/*IntegrationTest.*</include>
                   <include>**/*Tests.*</include>

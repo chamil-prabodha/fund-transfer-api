@@ -21,7 +21,6 @@ public class AppIntegrationTest {
     private static CloseableHttpClient client;
     @BeforeClass
     public static void setUp() throws Exception {
-        client = HttpClients.createDefault();
         App.main(new String[]{});
         awaitInitialization();
     }
@@ -29,6 +28,18 @@ public class AppIntegrationTest {
     @AfterClass
     public static void tearDown() throws Exception {
         stop();
+    }
+
+    @Before
+    public void initClient() {
+        client = HttpClients.createDefault();
+    }
+
+    @After
+    public void closeClient() throws IOException {
+        if (client != null) {
+            client.close();
+        }
     }
 
     @Test
@@ -48,6 +59,18 @@ public class AppIntegrationTest {
         HttpPost request = new HttpPost(BASE_URL + "/api/transfer");
 
         String jsonBody = "{\"toAccount\": 101, \"amount\": 10.00}";
+        StringEntity entity = new StringEntity(jsonBody);
+        request.setEntity(entity);
+        request.setHeader("Content-Type", "application/json");
+        CloseableHttpResponse response = client.execute(request);
+        assertEquals(400, response.getStatusLine().getStatusCode());
+    }
+
+    @Test
+    public void fundTransferApiRouteInsufficientBalanceTest() throws IOException {
+        HttpPost request = new HttpPost(BASE_URL + "/api/transfer");
+
+        String jsonBody = "{\"fromAccount\":100, \"toAccount\": 101, \"amount\": 10000.00}";
         StringEntity entity = new StringEntity(jsonBody);
         request.setEntity(entity);
         request.setHeader("Content-Type", "application/json");
